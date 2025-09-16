@@ -1,36 +1,70 @@
 <script>
-    let pollId = 42;
-    let question = "Pineapple on pizza: Is it acceptable?";
-    let options = [
-        { id: 1, text: "Yes", votes: 10 },
-        { id: 2, text: "No", votes: 5 },
-        { id: 3, text: "Only on weekends", votes: 1 }
-    ];
+    import {getContext, onMount} from "svelte";
+    export let p; // receive the poll prop
+
+    const { apiBase, selectedUser } = getContext('session') // ★ get the store
+    let counts = new Map() // optionId -> number
+
+    async function loadCount(optionId) {
+        // Preferred nested endpoint:
+        const res = await fetch(`${apiBase}/polls/${p.id}/options/${optionId}/votes`)
+        if (res.ok) {
+            const list = await res.json()
+            counts.set(optionId, list.length)
+            counts = new Map(counts) // trigger update
+            return
+        }
+        // Fallback: fetch all votes and filter client-side
+        const all = await (await fetch(`${apiBase}/votes`)).json()
+        const n = all.filter(v => v.option?.id === optionId).length
+        counts.set(optionId, n)
+        counts = new Map(counts)
+    }
+
+    async function loadAllCounts() {
+        await Promise.all(p.options.map(o => loadCount(o.id)))
+    }
+
+    onMount(loadAllCounts)
+
+    async function vote(optionId) {
+        const user = $selectedUser
+        if (!user) return
+        await fetch(`${apiBase}/votes?userId=${user.id}&optionId=${optionId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{}' // ensure JSON content type
+        })
+        // refresh only this option + the other options in same poll if your backend replaces previous vote
+        await Promise.all(p.options.map(o => loadCount(o.id)))
+    }
 </script>
 
+
 <div>
-    <p class="pollId">Poll#{pollId}</p>
-    <h2 class="question">"{question}"</h2>
+    <p class="pollId">Poll#{p.id}</p>
+    <h2 class="question">"{p.question}"</h2>
     <table>
         <thead>
-            <tr>
-<!--                <th>Options</th>-->
-<!--                <th>Votes</th>-->
-            </tr>
+        <tr></tr>
         </thead>
         <tbody>
-            {#each options as option}
-                <tr>
-                    <td>{option.text}</td>
-                    <!-- Ternary operator to handle singular/plural vote text -->
-                    <td></td>
-                    <td>{option.votes} {option.votes === 1 ? "Vote" : "Votes"}</td>
-                </tr>
-            {/each}
+        {#each p.options as o (o.id)}
+            <tr>
+                <td>{o.caption}</td>
+                <td>
+                    {#if $selectedUser}
+                        <button on:click={() => vote(o.id)}>Vote as {$selectedUser.username}</button>
+                    {/if}
+                </td>
+                <td>
+                    {counts.get(o.id)} {counts.get(o.id) === 1 ? "Vote" : "Votes"}
+                </td>
+            </tr>
+        {/each}
         </tbody>
     </table>
 </div>
-
 
 <style>
     div {
@@ -51,7 +85,6 @@
         border-radius: 5px;
         font-weight: bold;
     }
-
     .question {
         background-color: #fff4de;
         padding: 10px;
@@ -64,12 +97,10 @@
         margin-bottom: 5%;
         margin-left: 5%;
     }
-
     th, td {
         border: 1px solid #ddd;
         padding: 8px;
     }
-
     th {
         background-color: #f2f2f2;
         text-align: left;

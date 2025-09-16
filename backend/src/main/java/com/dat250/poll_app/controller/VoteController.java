@@ -8,6 +8,7 @@ import java.util.List;
 
 
 @RestController
+@CrossOrigin
 @RequestMapping("/votes")
 public class VoteController {
     private final PollManager manager;

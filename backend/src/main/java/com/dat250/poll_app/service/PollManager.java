@@ -175,6 +175,16 @@ public class PollManager {
 
     public List<Vote> listVotes() { return new ArrayList<>(votes.values()); }
 
+    public List<Vote> listVotesForOption(Long pollId, Long optionId) {
+        VoteOption vo = options.get(optionId);
+        if (vo == null) throw new NoSuchElementException("Option not found");
+        if (pollId != null && (vo.getPoll() == null || !vo.getPoll().getId().equals(pollId))) {
+            throw new NoSuchElementException("Option does not belong to poll " + pollId);
+        }
+        // Return a copy to avoid external mutation
+        return new ArrayList<>(vo.getVotes());
+    }
+
     private void removeVote(Vote v) {
         votes.remove(v.getId());
         if (v.getUser() != null) v.getUser().getVotes().remove(v);
