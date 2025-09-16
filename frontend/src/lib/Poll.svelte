@@ -1,13 +1,14 @@
 <script>
     import {getContext, onMount} from "svelte";
+    import {API_URL} from "./config.js";
     export let p; // receive the poll prop
 
-    const { apiBase, selectedUser } = getContext('session') // ★ get the store
+    const { selectedUser } = getContext('session') // ★ get the store
     let counts = new Map() // optionId -> number
 
     async function loadCount(optionId) {
         // Preferred nested endpoint:
-        const res = await fetch(`${apiBase}/polls/${p.id}/options/${optionId}/votes`)
+        const res = await fetch(`${API_URL}/polls/${p.id}/options/${optionId}/votes`)
         if (res.ok) {
             const list = await res.json()
             counts.set(optionId, list.length)
@@ -15,7 +16,7 @@
             return
         }
         // Fallback: fetch all votes and filter client-side
-        const all = await (await fetch(`${apiBase}/votes`)).json()
+        const all = await (await fetch(`${API_URL}/votes`)).json()
         const n = all.filter(v => v.option?.id === optionId).length
         counts.set(optionId, n)
         counts = new Map(counts)
@@ -30,7 +31,7 @@
     async function vote(optionId) {
         const user = $selectedUser
         if (!user) return
-        await fetch(`${apiBase}/votes?userId=${user.id}&optionId=${optionId}`, {
+        await fetch(`${API_URL}/votes?userId=${user.id}&optionId=${optionId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: '{}' // ensure JSON content type

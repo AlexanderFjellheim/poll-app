@@ -1,5 +1,6 @@
 <script>
     import { createEventDispatcher } from "svelte";
+    import {API_URL} from "./config.js";
 
     let newUserUsername = "";
     let newUserEmail = "";
@@ -13,7 +14,7 @@
         }
 
         try {
-            const response = await fetch("http://localhost:8080/users", {
+            const response = await fetch(API_URL+"/users", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

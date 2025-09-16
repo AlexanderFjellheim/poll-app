@@ -1,8 +1,9 @@
 <script>
     import { getContext, createEventDispatcher } from 'svelte';
+    import {API_URL} from "./config.js";
 
     // Get reactive session from context
-    const { apiBase, selectedUser } = getContext('session');
+    const { selectedUser } = getContext('session');
     const dispatch = createEventDispatcher();
 
     let question = '';
@@ -55,7 +56,7 @@
                 options: cleanOptions
             };
 
-            const res = await fetch(`${apiBase}/polls?userId=${$selectedUser.id}`, {
+            const res = await fetch(`${API_URL}/polls?userId=${$selectedUser.id}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)

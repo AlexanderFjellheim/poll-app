@@ -51,28 +51,5 @@
   {#each polls as p (p.id)}
     <Poll {p} />
   {/each}
-<!--  <h1>Hello {user ? user.username : "Guest"}!</h1>-->
 
-<!--  <label for="users">Choose a user:</label>-->
-<!--  <select id="users" on:change={handleUserSelection}>-->
-<!--    <option value="">Select a user</option>-->
-<!--    {#each users as u}-->
-<!--      <option value={JSON.stringify(u)}>{u.username}</option>-->
-<!--    {/each}-->
-<!--  </select>-->
-
-<!--  <CreateNewUser on:userCreated={fetchUsers}/>-->
-
-<!--  <h2>Available Polls:</h2>-->
-
-<!--    {#each polls as poll}-->
-<!--      <Poll poll={poll}/>-->
-<!--    {/each}-->
-
-<!--  {#if user}-->
-<!--    <CreateNewPoll on:pollCreated={fetchPolls}/>-->
-<!--  {/if}-->
-
-<!--&lt;!&ndash;  <button on:click={createNewPoll}>Create New Poll</button>&ndash;&gt;-->
-<!--&lt;!&ndash;  <button on:click={getUsers}>Get Users</button>&ndash;&gt;-->
 </main>
