@@ -27,7 +27,10 @@
     const id = Number(e.target.value)
     selectedUser.set(users.find(u => u.id === id) ?? null)
   }
-
+  function onPollDeleted(e) {
+    const id = e.detail.id
+    polls = polls.filter(p => p.id !== id)
+  }
 </script>
 
 <main>
@@ -49,7 +52,7 @@
 
   <h2>Available Polls:</h2>
   {#each polls as p (p.id)}
-    <Poll {p} />
+    <Poll {p} on:deleted={onPollDeleted} />
   {/each}
 
 </main>

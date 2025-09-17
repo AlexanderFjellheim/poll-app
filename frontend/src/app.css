@@ -5,3 +5,20 @@
     color: #000000;
     margin: 1em;
 }
+
+button {
+    cursor: pointer;
+}
+
+.danger {
+    color: white;
+    background-color: red;
+}
+.success {
+    color: white;
+    background-color: green;
+}
+.info {
+    color: white;
+    background-color: blue;
+}

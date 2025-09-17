@@ -1,5 +1,5 @@
 <script>
-    import {getContext, onMount} from "svelte";
+    import {createEventDispatcher, getContext, onMount} from "svelte";
     import {API_URL} from "./config.js";
     export let p; // receive the poll prop
 
@@ -26,6 +26,7 @@
         await Promise.all(p.options.map(o => loadCount(o.id)))
     }
 
+    const dispatch = createEventDispatcher()
     onMount(loadAllCounts)
 
     async function vote(optionId) {
@@ -39,11 +40,39 @@
         // refresh only this option + the other options in same poll if your backend replaces previous vote
         await Promise.all(p.options.map(o => loadCount(o.id)))
     }
+
+    let deleting = false;
+
+
+    async function deletePoll() {
+        deleting = true;
+        try {
+            const res = await fetch(`${API_URL}/polls/${p.id}`, {
+                method: 'DELETE'
+            });
+            if (!res.ok) {
+                const txt = await res.text();
+                throw new Error(txt || `HTTP ${res.status}`);
+            }
+            // Tell parent to remove this poll from its list
+            dispatch('deleted', { id: p.id });
+        } catch (err) {
+            console.error(err);
+            alert('Failed to delete poll: ' + err.message);
+        } finally {
+            deleting = false;
+        }
+    }
 </script>
 
 
 <div>
     <p class="pollId">Poll#{p.id}</p>
+    <!--{#if p.creator.id === $selectedUser.id}-->
+    <button class="delete" on:click={deletePoll} disabled={deleting}>
+        {deleting ? 'Deleting…' : 'Delete'}
+    </button>
+    <!--{/if}-->
     <h2 class="question">"{p.question}"</h2>
     <table>
         <thead>
@@ -68,6 +97,7 @@
 </div>
 
 <style>
+
     div {
         border: 2px solid #ddd;
         border-radius: 5px;
@@ -85,6 +115,14 @@
         padding: 8px;
         border-radius: 5px;
         font-weight: bold;
+    }
+    .delete {
+        background: #ff4848;
+        color: white;
+        padding: 8px;
+        border-radius: 5px;
+        font-weight: bold;
+
     }
     .question {
         background-color: #fff4de;
@@ -106,4 +144,5 @@
         background-color: #f2f2f2;
         text-align: left;
     }
+
 </style>
