@@ -1,20 +1,27 @@
 package com.dat250.poll_app.model;
 
 import com.fasterxml.jackson.annotation.*;
+import jakarta.persistence.*;
+
 
 import java.util.List;
 import java.util.ArrayList;
 
+@Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = VoteOption.class)
 public class VoteOption {
+    @Id @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     private Long id;
+
     private String caption;
-    private int presentationOrder;
+    private Integer presentationOrder;
 
     //@JsonBackReference("poll-options")
+    @ManyToOne
     private Poll poll;
 
     //@JsonBackReference("option-votes")
+    @OneToMany(mappedBy = "votesOn", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Vote> votes = new ArrayList<>();
 
@@ -32,7 +39,7 @@ public class VoteOption {
         this.poll = poll;
         this.presentationOrder = presentationOrder;
         this.votes = new ArrayList<>();
-        poll.getOptions().add(this);
+        //poll.getOptions().add(this);
     }
 
     // getters/setters

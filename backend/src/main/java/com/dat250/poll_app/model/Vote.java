@@ -1,19 +1,25 @@
 package com.dat250.poll_app.model;
 
 import com.fasterxml.jackson.annotation.*;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 
+@Entity
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = Vote.class)
 public class Vote {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private Instant publishedAt;
 
     //@JsonBackReference("user-votes")
+    @ManyToOne
     private User user;
 
     //@JsonManagedReference("option-votes")
-    private VoteOption option;
+    @ManyToOne
+    private VoteOption votesOn;
 
     // constructors
     public Vote() {}
@@ -25,7 +31,7 @@ public class Vote {
      */
     public Vote(User user, VoteOption option) {
         this.user = user;
-        this.option = option;
+        this.votesOn = option;
         this.publishedAt = Instant.now();
         user.getVotes().add(this);
         option.getVotes().add(this);
@@ -38,6 +44,6 @@ public class Vote {
     public void setPublishedAt(Instant publishedAt) { this.publishedAt = publishedAt; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
-    public VoteOption getOption() { return option; }
-    public void setOption(VoteOption option) { this.option = option; }
+    public VoteOption getOption() { return votesOn; }
+    public void setOption(VoteOption option) { this.votesOn = option; }
 }

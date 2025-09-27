@@ -1,24 +1,30 @@
 package com.dat250.poll_app.model;
 
 import com.fasterxml.jackson.annotation.*;
+import jakarta.persistence.*;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 
+@Entity
+@Table(name = "users")
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", scope = User.class)
 public class User {
-
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String username;
     private String email;
 
     //@JsonManagedReference("user-polls")
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private Set<Poll> polls = new LinkedHashSet<>();
 
     //@JsonManagedReference("user-votes")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     private List<Vote> votes = new ArrayList<>();
 
@@ -42,7 +48,6 @@ public class User {
      * and returns it.
      */
     public Poll createPoll(String question) {
-        // TODO: implement
         Poll poll = new Poll(question, this);
         this.polls.add(poll);
         return poll;
@@ -53,7 +58,6 @@ public class User {
      * and returns the Vote as an object.
      */
     public Vote voteFor(VoteOption option) {
-        // TODO: implement
         Vote vote = new Vote(this, option);
         this.votes.add(vote);
         option.getVotes().add(vote);
