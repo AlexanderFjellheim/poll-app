@@ -18,6 +18,23 @@ public class VoteOption {
     @JsonIgnore
     private List<Vote> votes = new ArrayList<>();
 
+    // constructors
+    public VoteOption() {}
+
+    /**
+     * Creates a new VoteOption object with given caption and associated poll.
+     * The id of a new vote option gets determined by the database.
+     * The presentationOrder is set to 0 by default and should be set later.
+     */
+
+    public VoteOption(String caption, Integer presentationOrder, Poll poll) {
+        this.caption = caption;
+        this.poll = poll;
+        this.presentationOrder = presentationOrder;
+        this.votes = new ArrayList<>();
+        poll.getOptions().add(this);
+    }
+
     // getters/setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

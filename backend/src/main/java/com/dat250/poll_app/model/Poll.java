@@ -19,6 +19,32 @@ public class Poll {
     //@JsonManagedReference("poll-options")
     private List<VoteOption> options = new ArrayList<>();
 
+    // constructors
+    public Poll() {}
+
+    /**
+     * Creates a new Poll object with given question and creator.
+     * The id of a new poll object gets determined by the database.
+     * The publishedAt timestamp is set to the current time.
+     * The validUntil timestamp is set to 24 hours from the current time.
+     */
+    public Poll(String question, User creator) {
+        this.question = question;
+        this.creator = creator;
+        this.publishedAt = Instant.now();
+        this.validUntil = publishedAt.plusSeconds(24 * 3600);
+        this.options = new ArrayList<>();
+        creator.getPolls().add(this);
+    }
+
+    public VoteOption addVoteOption(String caption) {
+        // TODO: implement
+        Integer presentationOrder = options.size();
+        VoteOption option = new VoteOption(caption, presentationOrder, this);
+        this.options.add(option);
+        return option;
+    }
+
     // getters/setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

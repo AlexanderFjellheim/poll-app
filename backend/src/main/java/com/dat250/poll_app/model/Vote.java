@@ -15,6 +15,22 @@ public class Vote {
     //@JsonManagedReference("option-votes")
     private VoteOption option;
 
+    // constructors
+    public Vote() {}
+
+    /**
+     * Creates a new Vote object for given user and vote option.
+     * The id of a new vote object gets determined by the database.
+     * The publishedAt timestamp is set to the current time.
+     */
+    public Vote(User user, VoteOption option) {
+        this.user = user;
+        this.option = option;
+        this.publishedAt = Instant.now();
+        user.getVotes().add(this);
+        option.getVotes().add(this);
+    }
+
     // getters/setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

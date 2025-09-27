@@ -23,7 +23,7 @@ public class PollManager {
     // ---------- USERS ----------
     public User createUser(User u) {
         u.setId(userSeq.getAndIncrement());
-        u.setPolls(new ArrayList<>());
+        u.setPolls(new HashSet<>());
         u.setVotes(new ArrayList<>());
         users.put(u.getId(), u);
         return u;
