@@ -32,6 +32,14 @@ dependencies {
 
 }
 
+//tasks.test { // Dumps generated DDLs for testing
+//	systemProperty("jakarta.persistence.schema-generation.scripts.action", "drop-and-create")
+//	systemProperty("jakarta.persistence.schema-generation.scripts.create-target", "${project.buildDir}/schema-create.sql")
+//	systemProperty("jakarta.persistence.schema-generation.scripts.drop-target", "${project.buildDir}/schema-drop.sql")
+//}
+
+
+
 tasks.withType<Test> {
 	useJUnitPlatform()
 	jvmArgs("-XX:+EnableDynamicAgentLoading")
