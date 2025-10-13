@@ -3,28 +3,21 @@
     import {API_URL} from "./config.js";
     export let p; // receive the poll prop
 
-    const { selectedUser } = getContext('session') // ★ get the store
-    let counts = new Map() // optionId -> number
-
-    async function loadCount(optionId) {
-        // Preferred nested endpoint:
-        const res = await fetch(`${API_URL}/polls/${p.id}/options/${optionId}/votes`)
-        if (res.ok) {
-            const list = await res.json()
-            counts.set(optionId, list.length)
-            counts = new Map(counts) // trigger update
-            return
-        }
-        // Fallback: fetch all votes and filter client-side
-        const all = await (await fetch(`${API_URL}/votes`)).json()
-        const n = all.filter(v => v.option?.id === optionId).length
-        counts.set(optionId, n)
-        counts = new Map(counts)
-    }
+    const { selectedUser } = getContext('session');
+    let counts = {};
 
     async function loadAllCounts() {
-        await Promise.all(p.options.map(o => loadCount(o.id)))
+        if (!p?.id) return;
+        const res = await fetch(`${API_URL}/polls/${p.id}/counts`, {
+            headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+            counts = await res.json();
+        } else {
+            counts = {};
+        }
     }
+
 
     const dispatch = createEventDispatcher()
     onMount(loadAllCounts)
@@ -35,10 +28,10 @@
         await fetch(`${API_URL}/votes?userId=${user.id}&optionId=${optionId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: '{}' // ensure JSON content type
+            body: '{}'
         })
-        // refresh only this option + the other options in same poll if your backend replaces previous vote
-        await Promise.all(p.options.map(o => loadCount(o.id)))
+        // After voting, reload all counts
+        await loadAllCounts();
     }
 
     let deleting = false;
@@ -88,7 +81,7 @@
                     {/if}
                 </td>
                 <td>
-                    {counts.get(o.id)} {counts.get(o.id) === 1 ? "Vote" : "Votes"}
+                    {(counts?.[o.presentationOrder] ?? 0)} {(counts?.[o.presentationOrder] ?? 0) === 1 ? "Vote" : "Votes"}
                 </td>
             </tr>
         {/each}
@@ -136,13 +129,13 @@
         margin-bottom: 5%;
         margin-left: 5%;
     }
-    th, td {
+    /*th,*/ td {
         border: 1px solid #ddd;
         padding: 8px;
     }
-    th {
-        background-color: #f2f2f2;
-        text-align: left;
-    }
+    /*th {*/
+    /*    background-color: #f2f2f2;*/
+    /*    text-align: left;*/
+    /*}*/
 
 </style>

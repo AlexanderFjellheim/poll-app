@@ -7,8 +7,9 @@
   import CreateNewPoll from "./lib/CreateNewPoll.svelte";
 
   const apiBase = 'http://localhost:8080'
-  const selectedUser = writable(null) // ★ reactive
-  setContext('session', { apiBase, selectedUser }) // ★ provide the store
+  const selectedUser = writable(null) // reactive
+  setContext('session', { apiBase, selectedUser }) // provide the store
+
 
   let users = [];
   let polls = [];
@@ -54,5 +55,15 @@
   {#each polls as p (p.id)}
     <Poll {p} on:deleted={onPollDeleted} />
   {/each}
-
+  <footer>Build test</footer>
 </main>
+
+<style>
+  footer {
+    margin-top: 3em;
+    padding-top: 1em;
+    border-top: 1px solid #ccc;
+    font-size: 0.8em;
+    color: #666;
+  }
+</style>

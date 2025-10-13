@@ -140,6 +140,24 @@ public class PollManager {
         }
     }
 
+    public VoteOption getOption(Long optionId) {
+        VoteOption vo = options.get(optionId);
+        if (vo == null) throw new NoSuchElementException("Option not found in poll");
+        return vo;
+    }
+
+    public Optional<Vote> findUserVoteInPoll(Long userId, Long pollId) {
+        User u = users.get(userId);
+        if (u == null || u.getVotes() == null) return Optional.empty();
+        for (Vote v : u.getVotes()) {
+            VoteOption opt = v.getOption();
+            if (opt != null && opt.getPoll() != null && Objects.equals(opt.getPoll().getId(), pollId)) {
+                return Optional.of(v);
+            }
+        }
+        return Optional.empty();
+    }
+
     // ---------- VOTES ----------
     public Vote castVote(Long userId, Long optionId) {
         User user = users.get(userId);
@@ -157,7 +175,13 @@ public class PollManager {
         // change vote: remove existing vote of this user in this poll
         for (Vote v : new ArrayList<>(user.getVotes())) {
             if (v.getOption().getPoll().getId().equals(poll.getId())) {
+
+                if (v.getOption().getId().equals(optionId)) {
+                    return v;
+                }
+
                 removeVote(v);
+                break;
             }
         }
 
@@ -175,19 +199,30 @@ public class PollManager {
 
     public List<Vote> listVotes() { return new ArrayList<>(votes.values()); }
 
-    public List<Vote> listVotesForOption(Long pollId, Long optionId) {
-        VoteOption vo = options.get(optionId);
-        if (vo == null) throw new NoSuchElementException("Option not found");
-        if (pollId != null && (vo.getPoll() == null || !vo.getPoll().getId().equals(pollId))) {
-            throw new NoSuchElementException("Option does not belong to poll " + pollId);
-        }
-        // Return a copy to avoid external mutation
-        return new ArrayList<>(vo.getVotes());
-    }
-
     private void removeVote(Vote v) {
+        System.out.println("Removing vote " + v.getId() + " by user " +
+                (v.getUser() != null ? v.getUser().getId() : "null") +
+                " on option " +
+                (v.getOption() != null ? v.getOption().getId() : "null"));
+
         votes.remove(v.getId());
         if (v.getUser() != null) v.getUser().getVotes().remove(v);
         if (v.getOption() != null) v.getOption().getVotes().remove(v);
+    }
+
+    public LinkedHashMap<Integer, Long> countVotesPerOption(Long id) {
+        Poll p = polls.get(id);
+        if (p == null) throw new NoSuchElementException("Poll not found: " + id);
+
+        var optionsSorted = new ArrayList<>(p.getOptions());
+        optionsSorted.sort(Comparator.comparingInt(VoteOption::getPresentationOrder));
+
+        var result = new LinkedHashMap<Integer, Long>();
+        for (VoteOption opt : optionsSorted) {
+            int order = opt.getPresentationOrder();
+            long count = (opt.getVotes() == null) ? 0L : opt.getVotes().size();
+            result.put(order, count);
+        }
+        return result;
     }
 }
