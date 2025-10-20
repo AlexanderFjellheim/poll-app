@@ -225,4 +225,20 @@ public class PollManager {
         }
         return result;
     }
+
+    public Vote castAnonymousVote(Long optionId) {
+        VoteOption opt = options.get(optionId);
+        if (opt == null) throw new NoSuchElementException("Option not found");
+
+        Vote v = new Vote();
+        Instant now = Instant.now();
+        v.setId(voteSeq.getAndIncrement());
+        v.setPublishedAt(now);
+        v.setUser(null); // anonymous
+        v.setOption(opt);
+
+        votes.put(v.getId(), v);
+        opt.getVotes().add(v);
+        return v;
+    }
 }

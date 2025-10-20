@@ -55,7 +55,7 @@
   {#each polls as p (p.id)}
     <Poll {p} on:deleted={onPollDeleted} />
   {/each}
-  <footer>Build test</footer>
+  <footer>Build with anonymous voting</footer>
 </main>
 
 <style>

@@ -31,6 +31,8 @@ dependencies {
 	implementation("jakarta.persistence:jakarta.persistence-api:3.2.0")
 	implementation("com.h2database:h2:2.3.232")
 
+	implementation("org.springframework.boot:spring-boot-starter-amqp")
+
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")

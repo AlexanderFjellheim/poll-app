@@ -24,12 +24,21 @@
 
     async function vote(optionId) {
         const user = $selectedUser
-        if (!user) return
-        await fetch(`${API_URL}/votes?userId=${user.id}&optionId=${optionId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: '{}'
-        })
+        if (!user) {
+            await fetch(`${API_URL}/votes?optionId=${optionId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: '{}'
+            })
+        }
+        else {
+            await fetch(`${API_URL}/votes?userId=${user.id}&optionId=${optionId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: '{}'
+            })
+        }
+
         // After voting, reload all counts
         await loadAllCounts();
     }
@@ -76,9 +85,12 @@
             <tr>
                 <td>{o.caption}</td>
                 <td>
-                    {#if $selectedUser}
-                        <button on:click={() => vote(o.id)}>Vote as {$selectedUser.username}</button>
-                    {/if}
+                    <!--{#if $selectedUser}-->
+                    <!--    <button on:click={() => vote(o.id)}>Vote as {$selectedUser.username}</button>-->
+                    <!--{/if}-->
+                    <button on:click={() => vote(o.id)}>
+                        {$selectedUser ? `Vote as ${$selectedUser.username}` : 'Vote anonymously'}
+                    </button>
                 </td>
                 <td>
                     {(counts?.[o.presentationOrder] ?? 0)} {(counts?.[o.presentationOrder] ?? 0) === 1 ? "Vote" : "Votes"}
